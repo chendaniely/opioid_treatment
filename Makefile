@@ -11,8 +11,14 @@ setup:
 	pip install altair shinywidgets plotly
 	pip install skimpy
 
+	Rscript -e "install.packages(c('public.ctn0094data', 'readr'), repos = 'https://cloud.r-project.org/')"
+
 	make snapshot
 
 @PHONY: snapshot
 snapshot:
 	pip freeze > requirements.txt
+
+@PHONY: app_data
+app_data:
+	Rscript data/01-get_data.R
