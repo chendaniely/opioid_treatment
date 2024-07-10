@@ -147,31 +147,89 @@ def server(input, output, session):
     @reactive.calc
     def joined_subset():
         joined_data_col_ids = [
-            f"joined_data_{col}" for col in joined_data().columns
+            f"joined_data___{col}" for col in joined_data().columns
         ]
 
-        joined_subset = joined_data()
+        joined_data_sub = joined_data()
 
         for input_id in joined_data_col_ids:
-            col = input_id.split("_")[2]
+            col = input_id.split("___")[1]
             input_val = getattr(input, input_id)()
-            if input_val:
-                joined_subset = joined_subset.loc[
-                    joined_subset[col].isin(input_val)
+
+            if not input_val:
+                joined_data_sub = joined_data_sub
+                continue
+
+            elif col == "age":
+                print(f"age input vals: {input_val}")
+                joined_data_sub["age"] = pd.to_numeric(joined_data_sub["age"])
+                joined_data_sub = joined_data_sub.loc[
+                    joined_data_sub["age"].between(
+                        input_val[0], input_val[1], inclusive="both"
+                    )
                 ]
-        return joined_subset
+
+            else:
+                print(f"input val: {input_val}")
+
+                # check if the input value has a missing value
+                if "nan" in input_val:
+                    has_nan = True
+                else:
+                    has_nan = False
+
+                # need to handle the nan as NaN missing value
+                # and filter separately
+                if has_nan:
+                    joined_data_sub = joined_data_sub.loc[
+                        (joined_data_sub[col].isin(input_val))
+                        | (joined_data_sub[col].isna())
+                    ]
+                else:
+                    joined_data_sub = joined_data_sub.loc[
+                        joined_data_sub[col].isin(input_val)
+                    ]
+        return joined_data_sub
 
     @render.ui
     def data_filters():
-        ui_elements = [
-            ui.input_selectize(
-                f"joined_data_{col}",
-                f"{col}",
-                joined_data()[col].unique().tolist(),
-                multiple=True,
-            )
-            for col in joined_data().columns
-        ]
+        ui_elements = []
+
+        for col in joined_data().columns:
+            if col == "age":
+                min_age = joined_data()["age"].min()
+                max_age = joined_data()["age"].max()
+
+                new_element = ui.input_slider(
+                    id=f"joined_data___{col}",
+                    label=f"{col}",
+                    min=min_age,
+                    max=max_age,
+                    value=[min_age, max_age],
+                    step=1,
+                    ticks=True,
+                    drag_range=True,
+                )
+            else:
+                new_element = ui.input_selectize(
+                    id=f"joined_data___{col}",
+                    label=f"{col}",
+                    choices=joined_data()[col].unique().tolist(),
+                    multiple=True,
+                    remove_button=True,
+                )
+
+            ui_elements.append(new_element)
+
+        # ui_elements = [
+        #     ui.input_selectize(
+        #         f"joined_data_{col}",
+        #         f"{col}",
+        #         joined_data()[col].unique().tolist(),
+        #         multiple=True,
+        #     )
+        #     for col in joined_data().columns
+        # ]
         return ui_elements
 
     @render.data_frame
