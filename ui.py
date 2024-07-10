@@ -6,8 +6,6 @@ from data import data_choices, gt, about_markdown
 
 ui.include_css("styles.css")
 
-# shiny UI -----
-
 app_ui = ui.page_navbar(
     ui.nav_panel(
         "Overview",
@@ -61,11 +59,6 @@ app_ui = ui.page_navbar(
             ui.output_text_verbatim("skimpy_results_txt"),
         ),
     ),
-    # ui.nav_panel(
-    #     "Testing",
-    #     ui.output_plot("drug_use_opioids_time"),
-    #     output_widget("drug_use_opioids_time_alt"),
-    # ),
     ui.nav_panel(
         "About",
         ui.page_fixed(

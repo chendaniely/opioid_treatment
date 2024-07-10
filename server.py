@@ -14,8 +14,6 @@ import skimpy as sk
 import data
 import helper
 
-# shiny server -----
-
 
 def server(input, output, session):
 
@@ -23,44 +21,9 @@ def server(input, output, session):
     def cnt_patients():
         return f"{data.patient_count}"
 
-    # @render.text()
-    # def pct_reason_missed():
-    #     return f"{data.has_reason_missed / data.total_visits:4.1%}"
-
     @render.text
     def num_visit_miss_14():
         return f"{data.num_visit_miss_14}"
-
-    # @render.plot(alt="Self reported drug use counts over time")
-    # def drug_use_opioids_time():
-    #     g = (
-    #         ggplot(
-    #             data.drug_usage_opioids,
-    #             aes(x="when", y="who", color="treatment"),
-    #         )
-    #         + p9.geom_line()
-    #         + p9.geom_vline(aes(xintercept=0))
-    #         + p9.theme_bw()
-    #     )
-    #     return g
-
-    # @render_widget()
-    # def drug_use_opioids_time_alt():
-    #     line = (
-    #         alt.Chart(data.drug_usage_opioids)
-    #         .mark_line()
-    #         .encode(x="when", y="who", color="treatment")
-    #     )
-
-    #     # Create the vertical line at x=0
-    #     vertical_line = (
-    #         alt.Chart(pd.DataFrame({"x": [0]}))
-    #         .mark_rule(color="red")
-    #         .encode(x="x:Q")
-    #     )
-
-    #     chart = line + vertical_line
-    #     return chart
 
     @render_widget()
     def drug_use_opioids_time_px():
@@ -193,6 +156,7 @@ def server(input, output, session):
 
     @render.ui
     def data_filters():
+        """Create the filter components based on the combined dataframe columns"""
         ui_elements = []
 
         for col in joined_data().columns:
@@ -221,15 +185,6 @@ def server(input, output, session):
 
             ui_elements.append(new_element)
 
-        # ui_elements = [
-        #     ui.input_selectize(
-        #         f"joined_data_{col}",
-        #         f"{col}",
-        #         joined_data()[col].unique().tolist(),
-        #         multiple=True,
-        #     )
-        #     for col in joined_data().columns
-        # ]
         return ui_elements
 
     @render.data_frame
