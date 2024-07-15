@@ -8,15 +8,13 @@ import plotnine as p9
 from plotnine import ggplot, aes
 import seaborn as sns
 from shiny import render, reactive, ui
-from shinywidgets import render_widget
-import skimpy as sk
+from shinywidgets import render_widget, output_widget
 
 import data
 import helper
 
 
 def server(input, output, session):
-
     @render.text
     def cnt_patients():
         return f"{data.patient_count}"
@@ -91,22 +89,6 @@ def server(input, output, session):
     def joined_data():
         return helper.join_data(input.selectize_data())
 
-    @render.image
-    def skimpy_results_img():
-        pth = Path.cwd() / "skimpy.svg"
-        sk.skim_get_figure(joined_data(), pth, "svg")
-        img = {"src": pth}
-        return img
-
-    @render.text
-    def skimpy_results_txt():
-        pth = Path.cwd() / "skimpy.txt"
-        sk.skim_get_figure(joined_data(), pth, "text")
-        with open(pth, "r") as f:
-            skimpy_contents = f.read()
-        print(skimpy_contents)
-        return skimpy_contents
-
     @reactive.calc
     def joined_subset():
         joined_data_col_ids = [
@@ -159,6 +141,7 @@ def server(input, output, session):
                     joined_data_sub = joined_data_sub.loc[
                         joined_data_sub[col].isin(input_val)
                     ]
+
         return joined_data_sub
 
     @render.ui
@@ -194,8 +177,28 @@ def server(input, output, session):
 
         return ui_elements
 
+    @reactive.calc
+    def _render_px_missing_widgets():
+        FXN_BODY_RENDER_PX_MISSING = """
+@render_widget
+def plot_miss_{col}():
+    return helper.px_missing(joined_subset(), x="{col}")
+"""
+        for col in joined_subset().columns:
+            fx = FXN_BODY_RENDER_PX_MISSING.strip().format(col=col)
+            exec(fx)
+
     @render.data_frame
     def assembled_data():
+        _render_px_missing_widgets()
+        plots = {}
+        for col in joined_subset().columns:
+            plots[col] = output_widget(f"plot_miss_{col}")
+        plots_df = pd.DataFrame(plots, index=[""])
+
+        df = pd.concat([plots_df, joined_subset()])
+        df = joined_subset()  # TODO: manually not put in the plots for now
+        return render.DataGrid(df, selection_mode="rows")
 
     @render.text
     def assembled_nrow():

@@ -1,6 +1,7 @@
 import pathlib as pl
 
 import pandas as pd
+import plotly.express as px
 
 import data
 
@@ -61,7 +62,12 @@ def join_data(
     current_keys = merge_keys[data_list[0]]
 
     # merge the DataFrames in the specified order
+    # print("*" * 80)
+    # print("\n\n")
+
     for key in data_list[1:]:
+        # print("*" * 80)
+        # print(f"merging df by key name: {key}")
         next_df = data_dict[key]
         next_keys = merge_keys[key]
         # print(f"current keys: {current_keys}")
@@ -69,11 +75,52 @@ def join_data(
 
         merge_keys_to_use = get_merge_keys(current_keys, next_keys)
         # print(f"merge keys to use: {merge_keys_to_use}")
+        # print(f"Merge keys to use: {merge_keys_to_use}")
 
         merged_df = merged_df.merge(next_df, on=merge_keys_to_use, how="inner")
-        current_keys = (
-            # TODO: there's a bug here where i get when_x and when_y if demo is listed in fixed
-            merge_keys_to_use  # update current keys for the next iteration
-        )
+        current_keys = next_keys  # update current keys for the next iteration
+        # print(f"new current keys: {current_keys}")
 
     return merged_df
+
+
+def px_missing(df, col_name):
+    data = df[col_name]
+
+    missing_proportion = data.isnull().mean()
+    missing_df = pd.DataFrame(
+        {"column": [data.name], "proportion": [missing_proportion]}
+    )
+
+    fig = px.bar(
+        missing_df,
+        x="proportion",
+        y="column",
+        orientation="h",
+        color="proportion",
+        color_continuous_scale="Reds",
+    )
+
+    # Customize the layout to remove additional elements and axis labels
+    fig.update_layout(
+        title=None,
+        xaxis=dict(
+            range=[0, 1],
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            showticklabels=False,
+            title=None,
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            showticklabels=False,
+            title=None,
+        ),
+        showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+
+    return fig
