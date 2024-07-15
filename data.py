@@ -4,12 +4,10 @@ import subprocess
 
 from great_tables import GT
 import pandas as pd
-from skimpy import skim
-import skimpy as sk
 
 
-def no_ctn30(data, who_ctn30):
-    return data.loc[~data.who.isin(who_ctn30)]
+def no_rand2(data, who_rand2):
+    return data.loc[~data.who.isin(who_rand2)]
 
 
 def roundup(x):
@@ -46,15 +44,15 @@ rand_which_2 = randomization.loc[randomization.which == 2, "who"].unique()
 
 # subset data so we're not using any CTN-30 randomization 2 data-----
 
-randomization = no_ctn30(randomization, rand_which_2)
+randomization = no_rand2(randomization, rand_which_2)
 assert (randomization.which == 1).all()
 
-everybody = no_ctn30(everybody, rand_which_2)
-treatment = no_ctn30(treatment, rand_which_2)
-uds = no_ctn30(uds, rand_which_2)
-tlfb = no_ctn30(tlfb, rand_which_2)
-visit = no_ctn30(visit, rand_which_2)
-demographics = no_ctn30(demographics, rand_which_2)
+everybody = no_rand2(everybody, rand_which_2)
+treatment = no_rand2(treatment, rand_which_2)
+uds = no_rand2(uds, rand_which_2)
+tlfb = no_rand2(tlfb, rand_which_2)
+visit = no_rand2(visit, rand_which_2)
+demographics = no_rand2(demographics, rand_which_2)
 
 # process data -----
 
