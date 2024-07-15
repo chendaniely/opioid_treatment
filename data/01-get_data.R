@@ -2,6 +2,7 @@
 # https://ctn-0094.github.io/public.ctn0094data/
 
 # remotes::install_github("CTN-0094/public.ctn0094data")
+# install.packages(c("readr", "public.ctn0094data"))
 
 library(public.ctn0094data)
 library(readr)
