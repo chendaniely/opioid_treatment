@@ -39,3 +39,52 @@ uds.what.value_counts().rename_axis("Drug").reset_index(name="Count")
 psychiatric.drop(columns="who").apply(lambda x: x.value_counts(dropna=False))
 
 #
+
+pd.DataFrame(demographics.is_male.value_counts(dropna=False)).T
+
+demographics.is_male.isnull().mean()
+
+
+import pandas as pd
+import plotly.express as px
+
+# Example DataFrame
+data = {"A": [1, 2, None, 4], "B": [None, 2, 3, 4], "C": [1, None, None, 4]}
+df = pd.DataFrame(data)
+
+data = {"A": [1, 2, None, 4, None, None]}
+df = pd.DataFrame(data)
+
+# Step 1: Calculate the proportion of missing values for each column
+missing_proportion = df.isnull().mean().reset_index()
+missing_proportion.columns = ["column", "proportion"]
+
+# Step 2: Create a horizontal bar graph using Plotly
+fig = px.bar(missing_proportion, x="proportion", y="column", orientation="h")
+
+# Customize the layout to remove additional elements and axis labels
+fig.update_layout(
+    title=None,
+    xaxis=dict(
+        range=[0, 1],
+        showgrid=False,
+        zeroline=False,
+        showline=False,
+        showticklabels=False,
+        title=None,
+    ),
+    yaxis=dict(
+        showgrid=False,
+        zeroline=False,
+        showline=False,
+        showticklabels=False,
+        title=None,
+    ),
+    showlegend=False,
+    margin=dict(l=0, r=0, t=0, b=0),
+)
+
+fig
+
+
+px_missing(demographics, "who")
