@@ -1,5 +1,6 @@
 import math
 from pathlib import Path
+import subprocess
 
 from great_tables import GT
 import pandas as pd
@@ -13,6 +14,20 @@ def no_ctn30(data, who_ctn30):
 
 def roundup(x):
     return math.ceil(x / 10.0) * 10
+
+
+# run data code and call R, if needed
+
+data_directory = Path("./data")
+csv_files = list(data_directory.glob("*.csv"))
+if not csv_files:
+    try:
+        print("RUNNING R CODE TO DOWNLOAD DATA")
+        subprocess.run(["Rscript", "data/01-get_data.R"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while running the R script: {e}")
+else:
+    print("CSV files found in ./data")
 
 
 # load data -----
