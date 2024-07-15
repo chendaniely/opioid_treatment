@@ -1,7 +1,7 @@
 from pathlib import Path
 from itertools import chain
+import io
 
-import altair as alt
 import pandas as pd
 import plotly.express as px
 import plotnine as p9
@@ -196,7 +196,21 @@ def server(input, output, session):
 
     @render.data_frame
     def assembled_data():
-        return render.DataGrid(joined_subset(), selection_mode="rows")
+
+    @render.text
+    def assembled_nrow():
+        return len(joined_subset().index)
+
+    @render.text
+    def assembled_ncol():
+        return len(joined_subset().columns)
+
+    @render.text
+    def assembled_csv_size():
+        csv_buffer = io.StringIO()
+        joined_subset().to_csv(csv_buffer, index=False)
+        csv_size = len(csv_buffer.getvalue().encode("utf-8"))
+        return f"{csv_size / 1000:,.2f}"  # return in kilobytes
 
     @render.download(filename="data.csv")
     async def download_data():
