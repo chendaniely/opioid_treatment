@@ -115,16 +115,24 @@ def server(input, output, session):
 
         joined_data_sub = joined_data()
 
+        # go through each column in the joined dataframe so a filter can be created
         for input_id in joined_data_col_ids:
             col = input_id.split("___")[1]
             input_val = getattr(input, input_id)()
 
+            # if the initial filter value is empty just move on to next column
             if not input_val:
                 joined_data_sub = joined_data_sub
                 continue
 
+            # selectize is returning a string, we need int to compare
+            elif col == "who":
+                joined_data_sub = joined_data_sub.loc[
+                    joined_data_sub["who"].isin(pd.to_numeric(input_val))
+                ]
+
+            # special case for age: want it to be a slider, not selectize
             elif col == "age":
-                print(f"age input vals: {input_val}")
                 joined_data_sub["age"] = pd.to_numeric(joined_data_sub["age"])
                 joined_data_sub = joined_data_sub.loc[
                     joined_data_sub["age"].between(
@@ -132,9 +140,8 @@ def server(input, output, session):
                     )
                 ]
 
+            # default UI filter is selectize
             else:
-                print(f"input val: {input_val}")
-
                 # check if the input value has a missing value
                 if "nan" in input_val:
                     has_nan = True
