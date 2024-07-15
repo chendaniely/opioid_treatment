@@ -7,8 +7,7 @@ Original data source from:
 <https://ctn-0094.github.io/public.ctn0094data/>
 
 For reporting simplicity,
-this application does not use patients from CTN-30,
-which had two randomization events.
+this application does not use patients from the second randomization.
 
 ## Datasets
 
