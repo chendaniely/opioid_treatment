@@ -7,7 +7,7 @@ from ui_about import ui_about
 ui.include_css("styles.css")
 
 app_ui = ui.page_navbar(
-    ui_overview,
+    # ui_overview,
     ui_data,
     ui_about,
     title="Opioid Treatment",
