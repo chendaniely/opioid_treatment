@@ -1,7 +1,7 @@
 @PHONY: app
 app:
-	python -m shiny run --port 54321 --reload app.py
-	# http://127.0.0.1:54321
+	python -m shiny run --port 55432 --reload app.py
+	# http://127.0.0.1:55432
 
 @PHONY: setup
 setup:
